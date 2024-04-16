@@ -18,6 +18,9 @@ pipeline {
     stage('package') {
       parallel {
         stage('package') {
+          when {
+                branch 'master'
+            }
           steps {
             echo 'Generating artifacts..!!!'
             sh 'mvn package -DskipTests'
