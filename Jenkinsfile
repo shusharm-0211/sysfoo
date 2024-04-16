@@ -26,9 +26,9 @@ pipeline {
           }
         }
 
-        stage('') {
+        stage('error') {
           steps {
-            archiveArtifacts 'target/*.war'
+            sleep 1
           }
         }
 
