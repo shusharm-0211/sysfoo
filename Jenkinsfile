@@ -2,6 +2,12 @@ pipeline {
   agent any
   stages {
     stage('build') {
+      agent {
+        docker {
+          image 'maven:3.6.3-jdk-11-slim'
+        }
+
+      }
       steps {
         echo 'Compiling the code...!!!!'
         sh 'mvn compile'
@@ -9,6 +15,12 @@ pipeline {
     }
 
     stage('test') {
+      agent {
+        docker {
+          image 'maven:3.6.3-jdk-11-slim'
+        }
+
+      }
       steps {
         echo 'Running the tests..!!'
         sh 'mvn clean test'
@@ -16,25 +28,20 @@ pipeline {
     }
 
     stage('package') {
-      parallel {
-        stage('package') {
-          when {
-                branch 'master'
-            }
-          steps {
-            echo 'Generating artifacts..!!!'
-            sh 'mvn package -DskipTests'
-            archiveArtifacts 'target/*.war'
-            archiveArtifacts 'target/*.war'
-          }
+      agent {
+        docker {
+          image 'maven:3.6.3-jdk-11-slim'
         }
 
-        stage('error') {
-          steps {
-            sleep 1
-          }
-        }
-
+      }
+      when {
+        branch 'master'
+      }
+      steps {
+        echo 'Generating artifacts..!!!'
+        sh 'mvn package -DskipTests'
+        archiveArtifacts 'target/*.war'
+        archiveArtifacts 'target/*.war'
       }
     }
 
