@@ -28,20 +28,39 @@ pipeline {
     }
 
     stage('package') {
-      agent {
-        docker {
-          image 'maven:3.6.3-jdk-11-slim'
+      parallel {
+        stage('package') {
+          agent {
+            docker {
+              image 'maven:3.6.3-jdk-11-slim'
+            }
+
+          }
+          when {
+            branch 'master'
+          }
+          steps {
+            echo 'Generating artifacts..!!!'
+            sh 'mvn package -DskipTests'
+            archiveArtifacts 'target/*.war'
+            archiveArtifacts 'target/*.war'
+          }
         }
 
-      }
-      when {
-        branch 'master'
-      }
-      steps {
-        echo 'Generating artifacts..!!!'
-        sh 'mvn package -DskipTests'
-        archiveArtifacts 'target/*.war'
-        archiveArtifacts 'target/*.war'
+        stage('Docker B&P') {
+          steps {
+            script {
+              docker.withRegistry('https://index.docker.io/v1/', 'dockerlogin') {
+                def dockerImage = docker.build("shubhamtrainingdevops/sysfoo:v${env.BUILD_ID}", "./")
+                dockerImage.push()
+                dockerImage.push("latest")
+                dockerImage.push("dev")
+              }
+            }
+
+          }
+        }
+
       }
     }
 
