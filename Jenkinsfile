@@ -1,5 +1,10 @@
 pipeline {
-  agent any
+  agent {
+    docker {
+      image 'maven:3.6.3-jdk-11-slim'
+    }
+
+  }
   stages {
     stage('build') {
       steps {
@@ -19,8 +24,8 @@ pipeline {
       parallel {
         stage('package') {
           when {
-                branch 'master'
-            }
+            branch 'master'
+          }
           steps {
             echo 'Generating artifacts..!!!'
             sh 'mvn package -DskipTests'
